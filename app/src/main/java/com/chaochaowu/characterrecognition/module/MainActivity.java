@@ -10,16 +10,17 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.FileProvider;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 
 import com.chaochaowu.characterrecognition.R;
 
@@ -140,10 +141,11 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == CAMERA_REQUEST_CODE) {
-                Bitmap photo = BitmapFactory.decodeFile(mTmpFile.getAbsolutePath());
-                mPresenter.getRecognitionResultByImage(photo);
-                imageView.setImageBitmap(photo);
+            Bitmap photo = BitmapFactory.decodeFile(mTmpFile.getAbsolutePath());
+            mPresenter.getRecognitionResultByImage(photo);
+            imageView.setImageBitmap(photo);
         }
     }
 
