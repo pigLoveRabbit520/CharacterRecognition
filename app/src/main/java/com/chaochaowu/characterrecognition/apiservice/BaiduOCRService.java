@@ -16,7 +16,6 @@ import retrofit2.http.Query;
  * @time Create at 6/4/2018 4:24 PM
  */
 
-
 public interface BaiduOCRService {
 
     /**
