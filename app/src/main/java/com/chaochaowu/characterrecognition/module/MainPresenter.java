@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.util.Base64;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import com.chaochaowu.characterrecognition.apiservice.BaiduOCRService;
 import com.chaochaowu.characterrecognition.bean.AccessTokenBean;
 import com.chaochaowu.characterrecognition.bean.RecognitionResultBean;
@@ -18,6 +19,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
@@ -66,7 +68,7 @@ public class MainPresenter implements MainContract.Presenter {
                     }
 
                     @Override
-                    public void onNext(AccessTokenBean accessTokenBean) {
+                    public void onNext(@NonNull AccessTokenBean accessTokenBean) {
                         Log.e("Access token",accessTokenBean.getAccess_token());
                     }
 
@@ -99,7 +101,7 @@ public class MainPresenter implements MainContract.Presenter {
                     }
 
                     @Override
-                    public void onNext(RecognitionResultBean recognitionResultBean) {
+                    public void onNext(@NonNull RecognitionResultBean recognitionResultBean) {
                         Log.e("onnext",recognitionResultBean.toString());
 
                         ArrayList<String> wordList = new ArrayList<>();
