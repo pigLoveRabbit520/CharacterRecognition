@@ -78,6 +78,7 @@ public class MainActivity extends AppCompatActivity {
             public void onResult(AccessToken result) {
                 // 调用成功，返回AccessToken对象
                 String token = result.getAccessToken();
+                Log.i("get baidu token", token);
             }
 
             @Override
@@ -92,7 +93,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void takePhoto() {
-
         if (!hasPermission()) {
             return;
         }
