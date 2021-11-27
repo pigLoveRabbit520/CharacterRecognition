@@ -3,6 +3,7 @@ package com.chaochaowu.characterrecognition.module;
 import android.content.Context;
 import android.graphics.Bitmap;
 
+import java.io.File;
 import java.util.ArrayList;
 
 /**
@@ -20,8 +21,7 @@ public interface MainContract {
     }
 
     interface Presenter {
-        void getAccessToken();
-        void getRecognitionResultByImage(Bitmap bitmap);
+        void getRecognitionResultByImage(File mTmpFile);
     }
 
 }

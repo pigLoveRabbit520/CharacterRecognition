@@ -12,12 +12,15 @@ import com.baidu.ocr.sdk.OnResultListener;
 import com.baidu.ocr.sdk.exception.OCRError;
 import com.baidu.ocr.sdk.model.AccessToken;
 import com.baidu.ocr.sdk.model.GeneralParams;
+import com.baidu.ocr.sdk.model.GeneralResult;
+import com.baidu.ocr.sdk.model.Word;
+import com.baidu.ocr.sdk.model.WordSimple;
 import com.chaochaowu.characterrecognition.apiservice.BaiduOCRService;
-import com.chaochaowu.characterrecognition.bean.AccessTokenBean;
 import com.chaochaowu.characterrecognition.bean.RecognitionResultBean;
 import com.chaochaowu.characterrecognition.utils.RegexUtils;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -62,98 +65,32 @@ public class MainPresenter implements MainContract.Presenter {
     }
 
 
-    @Override
-    public void getAccessToken() {
-
-        baiduOCRService.getAccessToken(CLIENT_CREDENTIALS,API_KEY,SECRET_KEY)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<AccessTokenBean>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
-
-                    }
-
-                    @Override
-                    public void onNext(@NonNull AccessTokenBean accessTokenBean) {
-                        Log.e("Access token",accessTokenBean.getAccess_token());
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        Log.e("Access token","error");
-                    }
-
-                    @Override
-                    public void onComplete() {
-
-                    }
-                });
-
-    }
-
-
 
     @Override
-    public void getRecognitionResultByImage(Bitmap bitmap) {
-        String encodeResult = bitmapToString(bitmap);
+    public void getRecognitionResultByImage(File mTmpFile) {
 
         GeneralParams param = new GeneralParams();
         param.setDetectDirection(true);
         param.setVertexesLocation(true);
         param.setRecognizeGranularity(GeneralParams.GRANULARITY_SMALL);
-        param.setImageFile(new File(filePath));
+        param.setImageFile(mTmpFile);
 
-        OCR.getInstance(this.ctx).getRecognitionResultByImage(ACCESS_TOKEN,encodeResult)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<RecognitionResultBean>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
-                    }
+        OCR.getInstance(this.ctx).recognizeAccurate(param, new OnResultListener<GeneralResult>() {
+            @Override
+            public void onResult(GeneralResult result) {
+                StringBuilder sb = new StringBuilder();
+                for (WordSimple wordSimple : result.getWordList()) {
+                    Word word = (Word) wordSimple;
+                    sb.append(word.getWords());
+                    sb.append("\n");
+                }
+                mView.updateUI(sb.toString());
+            }
 
-                    @Override
-                    public void onNext(@NonNull RecognitionResultBean recognitionResultBean) {
-                        Log.e("onnext",recognitionResultBean.toString());
-
-                        ArrayList<String> wordList = new ArrayList<>();
-                        List<RecognitionResultBean.WordsResultBean> wordsResult = recognitionResultBean.getWords_result();
-                        for (RecognitionResultBean.WordsResultBean words:wordsResult) {
-                            wordList.add(words.getWords());
-                        }
-
-                        ArrayList<String> numbs = RegexUtils.getNumbs(wordList);
-                        StringBuilder s = new StringBuilder();
-
-                        for (String numb : numbs) {
-                            s.append(numb + "\n");
-                        }
-
-                        mView.updateUI(s.toString());
-
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        Log.e("onerror",e.toString());
-                    }
-
-                    @Override
-                    public void onComplete() {
-
-                    }
-                });
-
+            @Override
+            public void onError(OCRError e) {
+                Log.e("onerror",e.toString());
+            }
+        });
     }
-
-
-
-    private String bitmapToString(Bitmap bitmap){
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-        byte[] bytes = baos.toByteArray();
-        return Base64.encodeToString(bytes, Base64.DEFAULT);
-    }
-
-
 }

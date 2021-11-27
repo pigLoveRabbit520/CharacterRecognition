@@ -162,7 +162,7 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == CAMERA_REQUEST_CODE) {
             Bitmap photo = BitmapFactory.decodeFile(mTmpFile.getAbsolutePath());
-            mPresenter.getRecognitionResultByImage(photo);
+            mPresenter.getRecognitionResultByImage(mTmpFile);
             imageView.setImageBitmap(photo);
         }
     }
