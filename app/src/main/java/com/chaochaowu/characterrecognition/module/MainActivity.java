@@ -11,6 +11,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -26,6 +27,10 @@ import com.baidu.ocr.sdk.OCR;
 import com.baidu.ocr.sdk.OnResultListener;
 import com.baidu.ocr.sdk.exception.OCRError;
 import com.baidu.ocr.sdk.model.AccessToken;
+import com.baidu.ocr.sdk.model.GeneralParams;
+import com.baidu.ocr.sdk.model.GeneralResult;
+import com.baidu.ocr.sdk.model.Word;
+import com.baidu.ocr.sdk.model.WordSimple;
 import com.chaochaowu.characterrecognition.R;
 
 import java.io.File;
@@ -33,23 +38,13 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-/**
- * @author chaochaowu
- * @Description : 主界面Activity,处理View部分
- * @class : MainActivity
- * @time Create at 6/4/2018 4:24 PM
- */
 
-
-public class MainActivity extends AppCompatActivity implements MainContract.View {
-
+public class MainActivity extends AppCompatActivity {
     private Context mContext;
-
     private ImageView imageView;
     private TextView textView;
     private Button button;
 
-    private MainPresenter mPresenter;
     File mTmpFile;
     Uri imageUri;
 
@@ -67,7 +62,6 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
         imageView = findViewById(R.id.imageView);
         textView = findViewById(R.id.textView);
         button = findViewById(R.id.button);
-        mPresenter = new MainPresenter(this, this);
 
         button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -93,12 +87,11 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
         }, getApplicationContext(), API_KEY, SECRET_KEY);
     }
 
-    @Override
     public void updateUI(String s) {
         textView.setText(s);
     }
 
-    private void takePhoto(){
+    private void takePhoto() {
 
         if (!hasPermission()) {
             return;
@@ -162,9 +155,34 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == CAMERA_REQUEST_CODE) {
             Bitmap photo = BitmapFactory.decodeFile(mTmpFile.getAbsolutePath());
-            mPresenter.getRecognitionResultByImage(mTmpFile);
+            getRecognitionResultByImage(mTmpFile);
             imageView.setImageBitmap(photo);
         }
     }
 
+    private void getRecognitionResultByImage(File mTmpFile) {
+        GeneralParams param = new GeneralParams();
+        param.setDetectDirection(true);
+        param.setVertexesLocation(true);
+        param.setRecognizeGranularity(GeneralParams.GRANULARITY_SMALL);
+        param.setImageFile(mTmpFile);
+
+        OCR.getInstance(this).recognizeAccurate(param, new OnResultListener<GeneralResult>() {
+            @Override
+            public void onResult(GeneralResult result) {
+                StringBuilder sb = new StringBuilder();
+                for (WordSimple wordSimple : result.getWordList()) {
+                    Word word = (Word) wordSimple;
+                    sb.append(word.getWords());
+                    sb.append("\n");
+                }
+                updateUI(sb.toString());
+            }
+
+            @Override
+            public void onError(OCRError e) {
+                Log.e("onerror",e.toString());
+            }
+        });
+    }
 }
