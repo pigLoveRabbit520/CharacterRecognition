@@ -1,10 +1,17 @@
 package com.chaochaowu.characterrecognition.module;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.Base64;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+
+import com.baidu.ocr.sdk.OCR;
+import com.baidu.ocr.sdk.OnResultListener;
+import com.baidu.ocr.sdk.exception.OCRError;
+import com.baidu.ocr.sdk.model.AccessToken;
+import com.baidu.ocr.sdk.model.GeneralParams;
 import com.chaochaowu.characterrecognition.apiservice.BaiduOCRService;
 import com.chaochaowu.characterrecognition.bean.AccessTokenBean;
 import com.chaochaowu.characterrecognition.bean.RecognitionResultBean;
@@ -33,14 +40,14 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class MainPresenter implements MainContract.Presenter {
 
     private MainContract.View mView;
+    private Context ctx;
     private BaiduOCRService baiduOCRService;
 
     private static final String CLIENT_CREDENTIALS = "client_credentials";
-    private static final String API_KEY = "G18MccziGf7iyHK5CCPIjHXZ";
-    private static final String SECRET_KEY = "XeMNckK8w8RiCHIfGUzyvcYAX7rSYSux";
-    private static final String ACCESS_TOKEN = "24.d22914a2d4e819b0a5ec69126bd2de86.2592000.1530693758.282335-11347860";
+    private static final String API_KEY = "EqfYRa3DH1zy4aNoynIAskZ3";
+    private static final String SECRET_KEY = "vxoIqFkde6TtYlP6GGi7tjuryO0Vt6SO";
 
-    public MainPresenter(MainContract.View mView) {
+    public MainPresenter(MainContract.View mView, Context ctx) {
 
         this.mView = mView;
 
@@ -89,10 +96,15 @@ public class MainPresenter implements MainContract.Presenter {
 
     @Override
     public void getRecognitionResultByImage(Bitmap bitmap) {
-
         String encodeResult = bitmapToString(bitmap);
 
-        baiduOCRService.getRecognitionResultByImage(ACCESS_TOKEN,encodeResult)
+        GeneralParams param = new GeneralParams();
+        param.setDetectDirection(true);
+        param.setVertexesLocation(true);
+        param.setRecognizeGranularity(GeneralParams.GRANULARITY_SMALL);
+        param.setImageFile(new File(filePath));
+
+        OCR.getInstance(this.ctx).getRecognitionResultByImage(ACCESS_TOKEN,encodeResult)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<RecognitionResultBean>() {

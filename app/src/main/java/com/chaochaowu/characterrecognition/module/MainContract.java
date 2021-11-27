@@ -15,11 +15,11 @@ import java.util.ArrayList;
 
 public interface MainContract {
 
-    interface View{
+    interface View {
         void updateUI(String s);
     }
 
-    interface Presenter{
+    interface Presenter {
         void getAccessToken();
         void getRecognitionResultByImage(Bitmap bitmap);
     }

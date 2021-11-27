@@ -22,6 +22,10 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
+import com.baidu.ocr.sdk.OCR;
+import com.baidu.ocr.sdk.OnResultListener;
+import com.baidu.ocr.sdk.exception.OCRError;
+import com.baidu.ocr.sdk.model.AccessToken;
 import com.chaochaowu.characterrecognition.R;
 
 import java.io.File;
@@ -37,7 +41,7 @@ import java.util.Date;
  */
 
 
-public class MainActivity extends AppCompatActivity implements MainContract.View{
+public class MainActivity extends AppCompatActivity implements MainContract.View {
 
     private Context mContext;
 
@@ -52,6 +56,9 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     private static final int PERMISSIONS_REQUEST_CODE = 1;
     private static final int CAMERA_REQUEST_CODE = 2;
 
+    private static final String API_KEY = "EqfYRa3DH1zy4aNoynIAskZ3";
+    private static final String SECRET_KEY = "vxoIqFkde6TtYlP6GGi7tjuryO0Vt6SO";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,7 +67,7 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
         imageView = findViewById(R.id.imageView);
         textView = findViewById(R.id.textView);
         button = findViewById(R.id.button);
-        mPresenter = new MainPresenter(this);
+        mPresenter = new MainPresenter(this, this);
 
         button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -72,7 +79,18 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
             }
         });
 
+        OCR.getInstance(this).initAccessTokenWithAkSk(new OnResultListener<AccessToken>() {
+            @Override
+            public void onResult(AccessToken result) {
+                // 调用成功，返回AccessToken对象
+                String token = result.getAccessToken();
+            }
 
+            @Override
+            public void onError(OCRError ocrError) {
+                //
+            }
+        }, getApplicationContext(), API_KEY, SECRET_KEY);
     }
 
     @Override
